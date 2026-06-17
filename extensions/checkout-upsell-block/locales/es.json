@@ -1,0 +1,16 @@
+{
+  "percentOff": "{{value}} % de descuento",
+  "saveAmount": "Ahorra {{amount}}",
+  "was": "antes {{price}}",
+  "option": "Opción",
+  "addToOrder": "Agregar al pedido",
+  "decreaseQuantity": "Disminuir cantidad",
+  "increaseQuantity": "Aumentar cantidad",
+  "remove": "Quitar",
+  "freeGift": "Regalo gratis",
+  "free": "Gratis",
+  "onlyNLeft": "Solo quedan {{count}}",
+  "addGift": "Agregar regalo gratis",
+  "addAll": "Agregar todo al pedido",
+  "volumeSave": "Compra {{count}}+ y ahorra"
+}

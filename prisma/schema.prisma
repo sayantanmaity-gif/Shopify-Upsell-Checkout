@@ -1,0 +1,142 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+// Note that some adapters may set a maximum length for the String type by default, please ensure your strings are long
+// enough when changing adapters.
+// See https://www.prisma.io/docs/orm/reference/prisma-schema-reference#string for more information
+datasource db {
+  provider = "sqlite"
+  url      = "file:dev.sqlite"
+}
+
+model Session {
+  id            String    @id
+  shop          String
+  state         String
+  isOnline      Boolean   @default(false)
+  scope         String?
+  expires       DateTime?
+  accessToken   String
+  userId        BigInt?
+  firstName     String?
+  lastName      String?
+  email         String?
+  accountOwner  Boolean   @default(false)
+  locale        String?
+  collaborator  Boolean?  @default(false)
+  emailVerified Boolean?  @default(false)
+  refreshToken        String?
+  refreshTokenExpires DateTime?
+}
+
+// One row per shop: UI customization for the checkout block + current plan.
+model ShopSettings {
+  id          String   @id @default(cuid())
+  shop        String   @unique
+
+  // Block content the checkout extension supports natively. (Colors/layout are
+  // NOT configurable — checkout extensions are sandboxed to Shopify's styling —
+  // so layout/bgColor/textColor/buttonColor below are retained DEAD columns,
+  // no longer surfaced in the UI or delivered to the block.)
+  blockTitle  String   @default("You might also like")
+  buttonLabel String   @default("Add to order")
+  layout      String   @default("single") // deprecated/unused
+  showImage   Boolean  @default(true)
+  showPrice   Boolean  @default(true)
+  maxVisible  Int      @default(3) // how many offers the checkout block shows
+  minCartSubtotal Float @default(0) // only show offers when cart subtotal >= this (0 = always)
+
+  // Spending-goal progress bar (0 = off). spendGoalText supports {amount} placeholder.
+  spendGoal     Float  @default(0)
+  spendGoalText String @default("Spend {amount} more to unlock free shipping!")
+  spendGoalDoneText String @default("You've unlocked free shipping! 🎉")
+
+  // Low-stock urgency: show "Only N left" when a variant's inventory <= this (0 = off).
+  lowStockThreshold Int @default(0)
+
+  // Free gift with purchase (added at 100% off when cart subtotal >= giftThreshold).
+  giftProductId   String?
+  giftVariantId   String?
+  giftTitle       String?
+  giftImageUrl    String?
+  giftThreshold   Float  @default(0) // 0 = no gift
+
+  // Where upsell products come from: "manual" | "ai" (Shopify recommendations) | "both".
+  productSource String @default("manual")
+  // Who sees the block: "all" | "loggedIn" | "guests".
+  audience      String @default("all")
+  // Per-locale merchant copy: { "<locale>": { "blockTitle": "...", "buttonLabel": "..." } }.
+  localizedCopyJson String @default("{}")
+
+  bgColor     String   @default("#ffffff") // deprecated/unused
+  textColor   String   @default("#1a1a1a") // deprecated/unused
+  buttonColor String   @default("#1a1a1a") // deprecated/unused
+
+  // Billing: "free" (1 product, no discount) | "paid" (5 products, discounts)
+  plan        String   @default("free")
+
+  // gid of the automatic app discount that activates the discount function.
+  discountId  String?
+
+  // High-water mark for the incremental order scan (Dashboard backfill).
+  lastUpsellSyncAt DateTime?
+
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  products    UpsellProduct[]
+}
+
+// Orders that contained at least one upsell line item (detected via the
+// `_upsell` line-item property). Powers the Dashboard analytics.
+model UpsellOrder {
+  id            String   @id @default(cuid())
+  shop          String
+  orderId       String   // gid://shopify/Order/...
+  orderName     String   // "#1001"
+  customerName  String?
+  customerEmail String?
+  currencyCode  String?
+  upsellTotal   Float    @default(0) // net revenue of upsell line items only
+  upsellUnits   Int      @default(0) // quantity of upsell items
+  orderTotal    Float    @default(0) // full order value (for AOV)
+  itemsJson     String   @default("[]") // [{title, variantTitle, quantity, price}]
+  orderedAt     DateTime? // when the order was actually placed (for date ranges)
+  createdAt     DateTime @default(now()) // when we recorded it
+
+  @@unique([shop, orderId])
+  @@index([shop])
+}
+
+// The upsell products a merchant offers (max 5, enforced in app logic).
+model UpsellProduct {
+  id            String   @id @default(cuid())
+  shop          String
+  productId     String   // gid://shopify/Product/...
+  variantId     String   // gid://shopify/ProductVariant/...
+  title         String   // snapshot for admin display
+  imageUrl      String?  // snapshot for admin display
+  price         String?  // snapshot for admin display (live price queried at checkout)
+
+  discountType  String?  // "percentage" | "fixed" | null (free plan = null)
+  discountValue Float?   // percent (0-100) or fixed amount in shop currency
+
+  // Optional quantity break: at volumeMinQty+ units, discountValue becomes
+  // volumeValue (same discountType). 0/null = no volume tier.
+  volumeMinQty  Int?
+  volumeValue   Float?
+
+  enabled       Boolean  @default(true)
+  displayOrder  Int      @default(0)
+
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  settings      ShopSettings @relation(fields: [shop], references: [shop], onDelete: Cascade)
+
+  @@index([shop])
+}

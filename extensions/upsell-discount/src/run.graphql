@@ -1,0 +1,27 @@
+query RunInput {
+  cart {
+    # JSON map of variantGid -> product title for the lines the checkout block
+    # added as upsells (also shown in the order's Additional details). We match
+    # on the variant GID keys, so it's exact even when products share a title.
+    attribute(key: "Upsell products") {
+      value
+    }
+    lines {
+      id
+      quantity
+      merchandise {
+        __typename
+        ... on ProductVariant {
+          id
+        }
+      }
+    }
+  }
+  # Per-variant discount spec { "<variantGid>": "percentage:15" | "fixed:5" |
+  # "percentage:15;3:25" (base + quantity break) } set by the admin on save.
+  discountNode {
+    metafield(namespace: "upsell", key: "config") {
+      value
+    }
+  }
+}

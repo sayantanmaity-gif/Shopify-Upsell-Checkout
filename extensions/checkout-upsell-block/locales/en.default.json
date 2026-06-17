@@ -1,0 +1,16 @@
+{
+  "percentOff": "{{value}}% off",
+  "saveAmount": "Save {{amount}}",
+  "was": "was {{price}}",
+  "option": "Option",
+  "addToOrder": "Add to order",
+  "decreaseQuantity": "Decrease quantity",
+  "increaseQuantity": "Increase quantity",
+  "remove": "Remove",
+  "freeGift": "Free gift",
+  "free": "Free",
+  "onlyNLeft": "Only {{count}} left",
+  "addGift": "Add free gift",
+  "addAll": "Add all to order",
+  "volumeSave": "Buy {{count}}+ and save"
+}
