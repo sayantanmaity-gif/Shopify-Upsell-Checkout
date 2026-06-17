@@ -19,6 +19,16 @@ uid = "d670a291-c78d-1c48-183a-2e884ba9917f079b88ae"
 module = "./src/Checkout.jsx"
 target = "purchase.checkout.block.render"
 
+# Post-purchase cross-sell (display + link to storefront — the cart can't be
+# mutated after the order is placed).
+[[extensions.targeting]]
+module = "./src/ThankYou.jsx"
+target = "purchase.thank-you.block.render"
+
+[[extensions.targeting]]
+module = "./src/ThankYou.jsx"
+target = "customer-account.order-status.block.render"
+
 [extensions.capabilities]
 # Gives your extension access to directly query Shopify’s storefront API.
 # https://shopify.dev/docs/api/checkout-ui-extensions/latest/configuration#api-access

@@ -12,5 +12,7 @@
   "onlyNLeft": "Nur noch {{count}} verfügbar",
   "addGift": "Gratisgeschenk hinzufügen",
   "addAll": "Alles zur Bestellung hinzufügen",
-  "volumeSave": "Kaufe {{count}}+ und spare"
+  "volumeSave": "Kaufe {{count}}+ und spare",
+  "crossSellTitle": "Das könnte dir auch gefallen",
+  "viewProduct": "Produkt ansehen"
 }

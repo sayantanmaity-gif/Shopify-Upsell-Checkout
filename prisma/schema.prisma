@@ -58,6 +58,10 @@ model ShopSettings {
   // Low-stock urgency: show "Only N left" when a variant's inventory <= this (0 = off).
   lowStockThreshold Int @default(0)
 
+  // A/B holdout: % of buyers (0-50) shown NO upsells, to measure incremental
+  // lift. 0 = off (everyone is "treatment").
+  holdoutPercent Int @default(0)
+
   // Free gift with purchase (added at 100% off when cart subtotal >= giftThreshold).
   giftProductId   String?
   giftVariantId   String?
@@ -107,6 +111,22 @@ model UpsellOrder {
   itemsJson     String   @default("[]") // [{title, variantTitle, quantity, price}]
   orderedAt     DateTime? // when the order was actually placed (for date ranges)
   createdAt     DateTime @default(now()) // when we recorded it
+
+  @@unique([shop, orderId])
+  @@index([shop])
+}
+
+// One row per paid order (control + treatment) for the A/B holdout lift report.
+// Records every order, not just upsell ones, so we can compare groups.
+model OrderStat {
+  id        String   @id @default(cuid())
+  shop      String
+  orderId   String
+  group     String   @default("treatment") // "control" | "treatment"
+  total     Float    @default(0)
+  hadUpsell Boolean  @default(false)
+  orderedAt DateTime?
+  createdAt DateTime @default(now())
 
   @@unique([shop, orderId])
   @@index([shop])

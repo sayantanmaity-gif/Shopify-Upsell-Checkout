@@ -28,6 +28,7 @@ async function fetchProductData(admin: Admin, productIds: string[]) {
         ... on Product {
           id
           title
+          onlineStoreUrl
           featuredImage { url }
           variants(first: 25) {
             nodes {
@@ -111,6 +112,7 @@ export async function buildConfig(admin: Admin, shop: string) {
       spendGoalText: settings.spendGoalText,
       spendGoalDoneText: settings.spendGoalDoneText,
       lowStockThreshold: settings.lowStockThreshold,
+      holdoutPercent: settings.holdoutPercent,
       productSource: settings.productSource,
       audience: settings.audience,
       localizedCopy: parseCopy(settings.localizedCopyJson),
@@ -130,6 +132,7 @@ export async function buildConfig(admin: Admin, shop: string) {
         productId: p.productId,
         title: pd?.title ?? p.title,
         image: pd?.featuredImage?.url ?? p.imageUrl ?? null,
+        url: pd?.onlineStoreUrl ?? null,
         discountType: limits.discountAllowed ? p.discountType : null,
         discountValue: limits.discountAllowed ? p.discountValue : null,
         volumeMinQty: limits.discountAllowed ? p.volumeMinQty : null,

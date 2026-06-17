@@ -12,5 +12,7 @@
   "onlyNLeft": "Only {{count}} left",
   "addGift": "Add free gift",
   "addAll": "Add all to order",
-  "volumeSave": "Buy {{count}}+ and save"
+  "volumeSave": "Buy {{count}}+ and save",
+  "crossSellTitle": "You might also like",
+  "viewProduct": "View product"
 }

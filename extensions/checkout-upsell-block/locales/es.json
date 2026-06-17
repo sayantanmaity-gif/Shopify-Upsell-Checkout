@@ -12,5 +12,7 @@
   "onlyNLeft": "Solo quedan {{count}}",
   "addGift": "Agregar regalo gratis",
   "addAll": "Agregar todo al pedido",
-  "volumeSave": "Compra {{count}}+ y ahorra"
+  "volumeSave": "Compra {{count}}+ y ahorra",
+  "crossSellTitle": "También te puede gustar",
+  "viewProduct": "Ver producto"
 }

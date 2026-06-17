@@ -225,6 +225,21 @@ export async function syncUpsellOrders(admin: Admin, shop: string) {
     const result = await processUpsellOrder(admin, shop, normalized);
     if (result.matched > 0) debug.found += 1;
     if (result.error) debug.errors.push(result.error);
+
+    // A/B lift: record any order that was assigned a holdout group.
+    const groupAttr = (order.customAttributes ?? []).find(
+      (a: any) => a.key === "_upsell_group",
+    )?.value;
+    if (groupAttr) {
+      await recordOrderStat({
+        shop,
+        orderId: normalized.orderId,
+        group: groupAttr,
+        total: normalized.orderTotal,
+        hadUpsell: result.matched > 0,
+        orderedAt: normalized.createdAt ? new Date(normalized.createdAt) : null,
+      });
+    }
   }
 
   // Advance the high-water mark only when the scan itself succeeded.
@@ -436,6 +451,73 @@ export async function reprocessOrder(
     where: { shop, orderId: orderGid },
     data: { upsellTotal, upsellUnits, orderTotal, itemsJson: JSON.stringify(items) },
   });
+}
+
+/** Record an order in the A/B lift table (only when a group was assigned). */
+export async function recordOrderStat(input: {
+  shop: string;
+  orderId: string;
+  group: string;
+  total: number;
+  hadUpsell: boolean;
+  orderedAt: Date | null;
+}) {
+  const group = input.group === "control" ? "control" : "treatment";
+  return prisma.orderStat.upsert({
+    where: { shop_orderId: { shop: input.shop, orderId: input.orderId } },
+    update: {
+      group,
+      total: input.total,
+      hadUpsell: input.hadUpsell,
+      orderedAt: input.orderedAt,
+    },
+    create: {
+      shop: input.shop,
+      orderId: input.orderId,
+      group,
+      total: input.total,
+      hadUpsell: input.hadUpsell,
+      orderedAt: input.orderedAt,
+    },
+  });
+}
+
+export type AbGroup = {
+  orders: number;
+  upsellOrders: number;
+  revenue: number;
+  aov: number;
+  attachRate: number;
+};
+
+/**
+ * A/B holdout lift: control (no upsells) vs treatment (upsells shown). Returns
+ * null when there isn't data for both groups yet.
+ */
+export async function getAbTestResults(shop: string, since: Date | null = null) {
+  const rows = await prisma.orderStat.findMany({
+    where: dateWhere(shop, since),
+    select: { group: true, total: true, hadUpsell: true },
+  });
+  const build = (g: string): AbGroup => {
+    const r = rows.filter((x) => x.group === g);
+    const orders = r.length;
+    const revenue = r.reduce((s, x) => s + x.total, 0);
+    const upsellOrders = r.filter((x) => x.hadUpsell).length;
+    return {
+      orders,
+      upsellOrders,
+      revenue,
+      aov: orders ? revenue / orders : 0,
+      attachRate: orders ? upsellOrders / orders : 0,
+    };
+  };
+  const control = build("control");
+  const treatment = build("treatment");
+  if (control.orders === 0 || treatment.orders === 0) return null;
+  const aovLift =
+    control.aov > 0 ? (treatment.aov - control.aov) / control.aov : null;
+  return { control, treatment, aovLift };
 }
 
 export type TopProduct = {

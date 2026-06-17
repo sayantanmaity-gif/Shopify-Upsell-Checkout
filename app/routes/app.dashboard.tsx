@@ -3,6 +3,7 @@ import type { LoaderFunctionArgs } from "react-router";
 import { useFetcher, useLoaderData, useSearchParams } from "react-router";
 import { authenticate } from "../shopify.server";
 import {
+  getAbTestResults,
   getDailyUpsellRevenue,
   getOrderCount,
   getTopUpsellProducts,
@@ -52,7 +53,7 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
     }
   }
 
-  const [metrics, page, orderCount, topProducts, aov, dailyRevenue] =
+  const [metrics, page, orderCount, topProducts, aov, dailyRevenue, abTest] =
     await Promise.all([
       getUpsellMetrics(session.shop, since),
       getUpsellOrders(session.shop, { skip, take: PAGE_SIZE, since }),
@@ -64,6 +65,7 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
       skip === 0
         ? getDailyUpsellRevenue(session.shop, since)
         : Promise.resolve([]),
+      skip === 0 ? getAbTestResults(session.shop, since) : Promise.resolve(null),
     ]);
   const storeHandle = session.shop.replace(/\.myshopify\.com$/, "");
   return {
@@ -76,6 +78,7 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
     topProducts,
     aov,
     dailyRevenue,
+    abTest,
     syncError,
   };
 };
@@ -170,6 +173,7 @@ export default function Dashboard() {
     topProducts,
     aov,
     dailyRevenue,
+    abTest,
   } = initial;
   const [, setSearchParams] = useSearchParams();
 
@@ -274,6 +278,55 @@ export default function Dashboard() {
         </s-paragraph>
         </s-stack>
       </s-section>
+
+      {abTest && (
+        <s-section heading="A/B holdout — incremental lift">
+          <s-stack direction="block" gap="base">
+            <s-table>
+              <s-table-header-row>
+                <s-table-header>Group</s-table-header>
+                <s-table-header>Orders</s-table-header>
+                <s-table-header>Attach rate</s-table-header>
+                <s-table-header>Avg order value</s-table-header>
+              </s-table-header-row>
+              <s-table-body>
+                <s-table-row>
+                  <s-table-cell>Treatment (sees upsells)</s-table-cell>
+                  <s-table-cell>{String(abTest.treatment.orders)}</s-table-cell>
+                  <s-table-cell>
+                    {(abTest.treatment.attachRate * 100).toFixed(1)}%
+                  </s-table-cell>
+                  <s-table-cell>
+                    {money(abTest.treatment.aov, currency)}
+                  </s-table-cell>
+                </s-table-row>
+                <s-table-row>
+                  <s-table-cell>Control (no upsells)</s-table-cell>
+                  <s-table-cell>{String(abTest.control.orders)}</s-table-cell>
+                  <s-table-cell>—</s-table-cell>
+                  <s-table-cell>
+                    {money(abTest.control.aov, currency)}
+                  </s-table-cell>
+                </s-table-row>
+              </s-table-body>
+            </s-table>
+            <s-paragraph>
+              {abTest.aovLift != null ? (
+                <>
+                  AOV lift from upsells:{" "}
+                  <s-badge tone={abTest.aovLift >= 0 ? "success" : "critical"}>
+                    {abTest.aovLift >= 0 ? "+" : ""}
+                    {(abTest.aovLift * 100).toFixed(1)}%
+                  </s-badge>{" "}
+                  vs. the control group.
+                </>
+              ) : (
+                "Collecting data — lift appears once both groups have orders."
+              )}
+            </s-paragraph>
+          </s-stack>
+        </s-section>
+      )}
 
       {topProducts.length > 0 && (
         <s-section heading="Top upsell products">

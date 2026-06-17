@@ -28,6 +28,7 @@ export const action = async ({ request }: ActionFunctionArgs) => {
     spendGoalText: String(payload.spendGoalText ?? ""),
     spendGoalDoneText: String(payload.spendGoalDoneText ?? ""),
     lowStockThreshold: Math.max(0, Math.floor(Number(payload.lowStockThreshold) || 0)),
+    holdoutPercent: Math.min(50, Math.max(0, Math.floor(Number(payload.holdoutPercent) || 0))),
     audience: ["all", "loggedIn", "guests"].includes(String(payload.audience))
       ? String(payload.audience)
       : "all",
@@ -79,6 +80,7 @@ export default function SettingsPage() {
     spendGoalText: settings.spendGoalText,
     spendGoalDoneText: settings.spendGoalDoneText,
     lowStockThreshold: settings.lowStockThreshold,
+    holdoutPercent: settings.holdoutPercent,
     audience: settings.audience,
     localizedCopy: parseCopy(settings.localizedCopyJson),
   });
@@ -217,6 +219,14 @@ export default function SettingsPage() {
             <s-option value="loggedIn">Logged-in customers only</s-option>
             <s-option value="guests">Guests only</s-option>
           </s-select>
+          <s-number-field
+            label="A/B holdout (%)"
+            details="Hide upsells from this % of buyers (0–50) to measure incremental lift on the Dashboard. 0 = off."
+            value={String(form.holdoutPercent)}
+            min={0}
+            max={50}
+            onInput={set("holdoutPercent")}
+          />
         </s-stack>
       </s-section>
 

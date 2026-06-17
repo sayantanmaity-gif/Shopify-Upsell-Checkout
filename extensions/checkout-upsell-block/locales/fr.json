@@ -12,5 +12,7 @@
   "onlyNLeft": "Plus que {{count}} en stock",
   "addGift": "Ajouter le cadeau gratuit",
   "addAll": "Tout ajouter à la commande",
-  "volumeSave": "Achetez-en {{count}}+ et économisez"
+  "volumeSave": "Achetez-en {{count}}+ et économisez",
+  "crossSellTitle": "Vous aimerez peut-être aussi",
+  "viewProduct": "Voir le produit"
 }

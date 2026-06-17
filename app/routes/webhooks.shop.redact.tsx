@@ -10,6 +10,7 @@ export const action = async ({ request }: ActionFunctionArgs) => {
 
   await prisma.$transaction([
     prisma.upsellOrder.deleteMany({ where: { shop } }),
+    prisma.orderStat.deleteMany({ where: { shop } }),
     prisma.upsellProduct.deleteMany({ where: { shop } }),
     prisma.shopSettings.deleteMany({ where: { shop } }),
     prisma.session.deleteMany({ where: { shop } }),

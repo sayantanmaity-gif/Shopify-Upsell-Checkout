@@ -1,0 +1,82 @@
+{% comment %}
+  Storefront upsell block. Renders Shopify product recommendations for the
+  current product and adds them to the cart, stamping the same "Upsell products"
+  cart attribute the checkout block uses — so the existing discount function and
+  analytics treat storefront-added upsells exactly like checkout ones.
+{% endcomment %}
+
+{%- if product -%}
+  <div
+    class="upsell-block"
+    data-upsell
+    data-product-id="{{ product.id }}"
+    data-limit="{{ block.settings.limit | default: 4 }}"
+    data-intent="{{ block.settings.intent | default: 'related' }}"
+    data-show-price="{{ block.settings.show_price }}"
+    data-button-label="{{ block.settings.button_label | default: 'Add to cart' | escape }}"
+    style="--upsell-accent: {{ block.settings.accent_color }};"
+  >
+    {%- if block.settings.heading != blank -%}
+      <h2 class="upsell-block__heading">{{ block.settings.heading }}</h2>
+    {%- endif -%}
+    <div class="upsell-block__grid" data-upsell-grid></div>
+  </div>
+
+  <script
+    src="{{ 'upsell.js' | asset_url }}"
+    defer
+  ></script>
+  {{ 'upsell.css' | asset_url | stylesheet_tag }}
+{%- endif -%}
+
+{% schema %}
+{
+  "name": "Upsell recommendations",
+  "target": "section",
+  "settings": [
+    {
+      "type": "text",
+      "id": "heading",
+      "label": "Heading",
+      "default": "You may also like"
+    },
+    {
+      "type": "select",
+      "id": "intent",
+      "label": "Recommendation type",
+      "options": [
+        { "value": "related", "label": "Related (automatic)" },
+        { "value": "complementary", "label": "Complementary (Search & Discovery)" }
+      ],
+      "default": "related"
+    },
+    {
+      "type": "range",
+      "id": "limit",
+      "label": "Products to show",
+      "min": 1,
+      "max": 10,
+      "step": 1,
+      "default": 4
+    },
+    {
+      "type": "checkbox",
+      "id": "show_price",
+      "label": "Show price",
+      "default": true
+    },
+    {
+      "type": "text",
+      "id": "button_label",
+      "label": "Button label",
+      "default": "Add to cart"
+    },
+    {
+      "type": "color",
+      "id": "accent_color",
+      "label": "Button color",
+      "default": "#1a1a1a"
+    }
+  ]
+}
+{% endschema %}

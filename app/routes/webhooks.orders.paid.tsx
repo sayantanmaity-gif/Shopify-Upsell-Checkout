@@ -2,6 +2,7 @@ import type { ActionFunctionArgs } from "react-router";
 import { authenticate } from "../shopify.server";
 import {
   processUpsellOrder,
+  recordOrderStat,
   type NormalizedOrder,
 } from "../models/analytics.server";
 
@@ -58,7 +59,22 @@ export const action = async ({ request }: ActionFunctionArgs) => {
   };
 
   try {
-    await processUpsellOrder(admin, shop, normalized);
+    const result = await processUpsellOrder(admin, shop, normalized);
+
+    // A/B lift: record any order assigned a holdout group.
+    const groupAttr = (order.note_attributes ?? []).find(
+      (a: any) => a.name === "_upsell_group",
+    )?.value;
+    if (groupAttr) {
+      await recordOrderStat({
+        shop,
+        orderId: normalized.orderId,
+        group: groupAttr,
+        total: normalized.orderTotal,
+        hadUpsell: result.matched > 0,
+        orderedAt: normalized.createdAt ? new Date(normalized.createdAt) : null,
+      });
+    }
   } catch (e) {
     console.error(`orders/paid processing failed for ${shop}`, e);
   }

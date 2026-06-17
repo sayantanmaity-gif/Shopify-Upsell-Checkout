@@ -23,6 +23,7 @@ const DEFAULT_SETTINGS = {
   spendGoalText: "Spend {amount} more to unlock free shipping!",
   spendGoalDoneText: "You've unlocked free shipping! 🎉",
   lowStockThreshold: 0,
+  holdoutPercent: 0,
   giftThreshold: 0,
   productSource: "manual",
   audience: "all",
@@ -50,6 +51,7 @@ export type SettingsInput = {
   spendGoalText: string;
   spendGoalDoneText: string;
   lowStockThreshold: number;
+  holdoutPercent: number;
   audience: string;
   localizedCopyJson: string;
 };

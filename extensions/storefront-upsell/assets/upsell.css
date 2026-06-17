@@ -1,0 +1,47 @@
+.upsell-block {
+  margin: 1.5rem 0;
+}
+.upsell-block__heading {
+  font-size: 1.1rem;
+  margin: 0 0 0.75rem;
+}
+.upsell-block__grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+  gap: 1rem;
+}
+.upsell-card {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+  text-align: center;
+}
+.upsell-card__img {
+  width: 100%;
+  aspect-ratio: 1 / 1;
+  object-fit: cover;
+  border-radius: 8px;
+}
+.upsell-card__title {
+  font-size: 0.9rem;
+  font-weight: 600;
+}
+.upsell-card__price {
+  font-size: 0.85rem;
+  opacity: 0.7;
+}
+.upsell-card__btn {
+  margin-top: auto;
+  border: none;
+  border-radius: 8px;
+  padding: 0.5rem 0.75rem;
+  font-size: 0.85rem;
+  font-weight: 600;
+  cursor: pointer;
+  background: var(--upsell-accent, #1a1a1a);
+  color: #fff;
+}
+.upsell-card__btn:disabled {
+  opacity: 0.7;
+  cursor: default;
+}

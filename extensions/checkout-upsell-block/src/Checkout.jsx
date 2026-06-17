@@ -214,6 +214,23 @@ function pruneMap(map) {
   return next;
 }
 
+// A/B holdout group, stored in a cart attribute so it's stable across renders
+// and carries to the order for the lift report. "control" sees no upsells.
+const GROUP_KEY = "_upsell_group";
+
+function readGroup() {
+  const attrs = shopify.attributes.value ?? [];
+  return attrs.find((a) => a.key === GROUP_KEY)?.value ?? null;
+}
+
+async function writeGroup(group) {
+  await shopify.applyAttributeChange({
+    type: "updateAttribute",
+    key: GROUP_KEY,
+    value: group,
+  });
+}
+
 async function markUpsell(variantId, title) {
   const map = pruneMap(readUpsellMap());
   map[variantId] = title; // keep the just-added one even if not yet in lines
@@ -264,7 +281,19 @@ function Extension() {
     };
   }, [productSource, seedIds.join(",")]);
 
+  // A/B holdout: assign this checkout to control/treatment once.
+  const holdout = Number(config?.settings?.holdoutPercent) || 0;
+  const group = readGroup();
+  useEffect(() => {
+    if (holdout <= 0 || group) return;
+    writeGroup(Math.random() * 100 < holdout ? "control" : "treatment");
+  }, [holdout, group]);
+
   if (!config) return null;
+
+  // Holdout: hide everything for the control group (and until assigned, so the
+  // control group never briefly sees an offer).
+  if (holdout > 0 && group !== "treatment") return null;
 
   // Audience targeting (no PII read — presence only).
   const audience = config.settings?.audience ?? "all";
