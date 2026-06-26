@@ -1,0 +1,18 @@
+{
+  "percentOff": "{{value}}% 折扣",
+  "saveAmount": "节省 {{amount}}",
+  "was": "原价 {{price}}",
+  "option": "选项",
+  "addToOrder": "加入订单",
+  "decreaseQuantity": "减少数量",
+  "increaseQuantity": "增加数量",
+  "remove": "移除",
+  "freeGift": "免费赠品",
+  "free": "免费",
+  "onlyNLeft": "仅剩 {{count}} 件",
+  "addGift": "添加免费赠品",
+  "addAll": "全部加入订单",
+  "volumeSave": "购买 {{count}} 件以上更优惠",
+  "crossSellTitle": "您可能还喜欢",
+  "viewProduct": "查看商品"
+}

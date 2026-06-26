@@ -1,0 +1,18 @@
+{
+  "percentOff": "{{value}}% korting",
+  "saveAmount": "Bespaar {{amount}}",
+  "was": "was {{price}}",
+  "option": "Optie",
+  "addToOrder": "Toevoegen aan bestelling",
+  "decreaseQuantity": "Aantal verlagen",
+  "increaseQuantity": "Aantal verhogen",
+  "remove": "Verwijderen",
+  "freeGift": "Gratis cadeau",
+  "free": "Gratis",
+  "onlyNLeft": "Nog maar {{count}} beschikbaar",
+  "addGift": "Gratis cadeau toevoegen",
+  "addAll": "Alles toevoegen aan bestelling",
+  "volumeSave": "Koop {{count}}+ en bespaar",
+  "crossSellTitle": "Misschien vind je dit ook leuk",
+  "viewProduct": "Product bekijken"
+}

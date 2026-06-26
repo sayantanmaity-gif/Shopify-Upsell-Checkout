@@ -1,0 +1,18 @@
+{
+  "percentOff": "{{value}}%オフ",
+  "saveAmount": "{{amount}}お得",
+  "was": "通常 {{price}}",
+  "option": "オプション",
+  "addToOrder": "注文に追加",
+  "decreaseQuantity": "数量を減らす",
+  "increaseQuantity": "数量を増やす",
+  "remove": "削除",
+  "freeGift": "無料ギフト",
+  "free": "無料",
+  "onlyNLeft": "残り{{count}}点",
+  "addGift": "無料ギフトを追加",
+  "addAll": "すべて注文に追加",
+  "volumeSave": "{{count}}個以上の購入でお得",
+  "crossSellTitle": "こちらもおすすめ",
+  "viewProduct": "商品を見る"
+}
