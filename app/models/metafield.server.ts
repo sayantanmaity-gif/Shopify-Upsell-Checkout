@@ -54,15 +54,6 @@ async function fetchProductData(admin: Admin, productIds: string[]) {
   return { currencyCode, map };
 }
 
-function parseCopy(json: string): Record<string, unknown> {
-  try {
-    const o = JSON.parse(json);
-    return o && typeof o === "object" ? o : {};
-  } catch {
-    return {};
-  }
-}
-
 /** Build the JSON config blob consumed by the checkout extension. */
 export async function buildConfig(admin: Admin, shop: string) {
   const settings = await getShopSettings(shop);
@@ -115,7 +106,6 @@ export async function buildConfig(admin: Admin, shop: string) {
       holdoutPercent: settings.holdoutPercent,
       productSource: settings.productSource,
       audience: settings.audience,
-      localizedCopy: parseCopy(settings.localizedCopyJson),
     },
     gift,
     products: enabled.map((p) => {

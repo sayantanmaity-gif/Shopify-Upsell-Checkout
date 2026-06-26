@@ -73,7 +73,8 @@ model ShopSettings {
   productSource String @default("manual")
   // Who sees the block: "all" | "loggedIn" | "guests".
   audience      String @default("all")
-  // Per-locale merchant copy: { "<locale>": { "blockTitle": "...", "buttonLabel": "..." } }.
+  // Retained as a dead column (translation feature removed); a committed
+  // migration created it, so keeping it avoids schema/migration drift.
   localizedCopyJson String @default("{}")
 
   bgColor     String   @default("#ffffff") // deprecated/unused

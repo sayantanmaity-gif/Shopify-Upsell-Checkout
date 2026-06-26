@@ -23,13 +23,14 @@ function readConfig() {
   }
 }
 
-function t(key, replacements) {
-  try {
-    const out = shopify.i18n.translate(key, replacements);
-    return Array.isArray(out) ? out.join("") : out;
-  } catch {
-    return key;
-  }
+// Fixed English UI labels. (Translation was removed.)
+const LABELS = {
+  crossSellTitle: "You might also like",
+  viewProduct: "View product",
+};
+
+function t(key) {
+  return LABELS[key] ?? key;
 }
 
 function money(amount, currencyCode) {
@@ -48,19 +49,8 @@ function money(amount, currencyCode) {
   }
 }
 
-function localizedTitle(settings) {
-  let locale = "en";
-  try {
-    locale = (
-      shopify.localization?.extensionLanguage?.value?.isoCode ?? "en"
-    ).toLowerCase();
-  } catch {
-    /* default */
-  }
-  const lang = locale.split("-")[0];
-  const map = settings?.localizedCopy ?? {};
-  const copy = map[lang] ?? map[locale] ?? {};
-  return copy.blockTitle || settings?.blockTitle || t("crossSellTitle");
+function crossSellTitle(settings) {
+  return settings?.blockTitle || t("crossSellTitle");
 }
 
 // ---------- root ----------
@@ -86,7 +76,7 @@ function ThankYou() {
 
   return (
     <s-stack gap="base">
-      <s-heading>{localizedTitle(settings)}</s-heading>
+      <s-heading>{crossSellTitle(settings)}</s-heading>
       {products.map((p) => {
         const variant =
           (p.variants ?? []).find((v) => v.availableForSale) ?? null;

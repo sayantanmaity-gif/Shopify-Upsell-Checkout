@@ -25,15 +25,34 @@ function readConfig() {
   }
 }
 
-// Buyer-locale string lookup (resolves against locales/*.json, falls back to
-// en.default.json and finally the key itself).
+// Fixed English UI labels. (Translation was removed — these are plain strings,
+// with {placeholder} interpolation from the optional replacements object.)
+const LABELS = {
+  percentOff: "{value}% off",
+  saveAmount: "Save {amount}",
+  was: "was {price}",
+  option: "Option",
+  addToOrder: "Add to order",
+  decreaseQuantity: "Decrease quantity",
+  increaseQuantity: "Increase quantity",
+  remove: "Remove",
+  freeGift: "Free gift",
+  free: "Free",
+  onlyNLeft: "Only {count} left",
+  addAll: "Add all to order",
+  volumeSave: "Buy {count}+ and save",
+  crossSellTitle: "You might also like",
+  viewProduct: "View product",
+};
+
 function t(key, replacements) {
-  try {
-    const out = shopify.i18n.translate(key, replacements);
-    return Array.isArray(out) ? out.join("") : out;
-  } catch {
-    return key;
+  let s = LABELS[key] ?? key;
+  if (replacements) {
+    for (const [k, v] of Object.entries(replacements)) {
+      s = s.replace(`{${k}}`, String(v));
+    }
   }
+  return s;
 }
 
 // Format money in the buyer's checkout locale + the store's currency.
@@ -67,27 +86,6 @@ function discountBadge(product, currencyCode) {
   return product.discountType === "percentage"
     ? t("percentOff", { value: product.discountValue })
     : t("saveAmount", { amount: money(product.discountValue, currencyCode) });
-}
-
-// Merchant copy for the buyer's checkout language: per-locale overrides fall
-// back to the base (English) blockTitle/buttonLabel.
-function localizedCopy(settings) {
-  let locale = "en";
-  try {
-    locale = (
-      shopify.localization?.extensionLanguage?.value?.isoCode ?? "en"
-    ).toLowerCase();
-  } catch {
-    /* keep default */
-  }
-  const lang = locale.split("-")[0];
-  const map = settings.localizedCopy ?? {};
-  const copy = map[lang] ?? map[locale] ?? {};
-  return {
-    ...settings,
-    blockTitle: copy.blockTitle || settings.blockTitle,
-    buttonLabel: copy.buttonLabel || settings.buttonLabel,
-  };
 }
 
 // Is there an authenticated buyer? Used for audience targeting (no PII read).
@@ -313,7 +311,7 @@ function Extension() {
   const minSubtotal = Number(config.settings?.minCartSubtotal) || 0;
   if (minSubtotal > 0 && hasSubtotal && subtotal < minSubtotal) return null;
 
-  const settings = localizedCopy(config.settings ?? {});
+  const settings = config.settings ?? {};
 
   // A product is eligible if it has an in-stock variant the buyer doesn't
   // already have in the cart (lines we added ourselves don't count).

@@ -32,37 +32,11 @@ export const action = async ({ request }: ActionFunctionArgs) => {
     audience: ["all", "loggedIn", "guests"].includes(String(payload.audience))
       ? String(payload.audience)
       : "all",
-    localizedCopyJson: JSON.stringify(
-      payload.localizedCopy && typeof payload.localizedCopy === "object"
-        ? payload.localizedCopy
-        : {},
-    ),
   });
 
   await syncConfigMetafield(admin, session.shop);
   return { ok: true };
 };
-
-type LocaleCopy = Record<
-  string,
-  { blockTitle?: string; buttonLabel?: string }
->;
-
-function parseCopy(json: string): LocaleCopy {
-  try {
-    const o = JSON.parse(json);
-    return o && typeof o === "object" ? (o as LocaleCopy) : {};
-  } catch {
-    return {};
-  }
-}
-
-// Locales the checkout block ships translations for (English is the base copy).
-const LOCALES = [
-  { code: "fr", label: "French" },
-  { code: "es", label: "Spanish" },
-  { code: "de", label: "German" },
-];
 
 export default function SettingsPage() {
   const { settings } = useLoaderData<typeof loader>();
@@ -82,23 +56,7 @@ export default function SettingsPage() {
     lowStockThreshold: settings.lowStockThreshold,
     holdoutPercent: settings.holdoutPercent,
     audience: settings.audience,
-    localizedCopy: parseCopy(settings.localizedCopyJson),
   });
-  const [activeLocale, setActiveLocale] = useState("fr");
-
-  // Update one field of one locale's override copy.
-  const setCopy =
-    (locale: string, field: "blockTitle" | "buttonLabel") => (e: Event) => {
-      const el = (e.currentTarget ?? e.target) as any;
-      const value = el?.value ?? "";
-      setForm((f) => ({
-        ...f,
-        localizedCopy: {
-          ...f.localizedCopy,
-          [locale]: { ...(f.localizedCopy[locale] ?? {}), [field]: value },
-        },
-      }));
-    };
 
   // Read the value synchronously — currentTarget is nulled out before a lazy
   // setState updater runs, which would throw "Cannot read properties of null".
@@ -116,7 +74,9 @@ export default function SettingsPage() {
   const saving = fetcher.state !== "idle";
 
   useEffect(() => {
-    if (fetcher.data?.ok) shopify.toast.show("Settings saved");
+    if (fetcher.data?.ok) {
+      shopify.toast.show("Settings saved");
+    }
   }, [fetcher.data, shopify]);
 
   const save = () =>
@@ -230,44 +190,12 @@ export default function SettingsPage() {
         </s-stack>
       </s-section>
 
-      <s-section heading="Languages">
-        <s-stack direction="block" gap="base">
-          <s-paragraph>
-            English uses the Text fields above. Add translated title/button copy
-            for other checkout languages here (optional).
-          </s-paragraph>
-          <s-select
-            label="Language"
-            value={activeLocale}
-            onChange={(e: Event) =>
-              setActiveLocale((e.currentTarget as any).value)
-            }
-          >
-            {LOCALES.map((l) => (
-              <s-option key={l.code} value={l.code}>
-                {l.label}
-              </s-option>
-            ))}
-          </s-select>
-          <s-text-field
-            label="Block title"
-            value={form.localizedCopy[activeLocale]?.blockTitle ?? ""}
-            onInput={setCopy(activeLocale, "blockTitle")}
-          />
-          <s-text-field
-            label="Add button label"
-            value={form.localizedCopy[activeLocale]?.buttonLabel ?? ""}
-            onInput={setCopy(activeLocale, "buttonLabel")}
-          />
-        </s-stack>
-      </s-section>
-
       <s-section slot="aside" heading="About styling">
         <s-paragraph>
           The block's colors, fonts, and spacing follow your checkout's theme
           automatically — checkout extensions are sandboxed by Shopify, so there
           are no color or layout controls here. You control the content (text,
-          image/price visibility, how many offers, targeting, and translations).
+          image/price visibility, how many offers, and targeting).
         </s-paragraph>
       </s-section>
     </s-page>

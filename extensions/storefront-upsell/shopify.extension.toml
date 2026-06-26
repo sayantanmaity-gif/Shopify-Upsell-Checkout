@@ -2,6 +2,7 @@
 # on product pages (and other sections) from the theme editor. Storefront,
 # fully stylable (unlike the sandboxed checkout block).
 api_version = "2025-10"
+uid = "067e5f28-1761-f67f-1a96-3de812ef12358fc41f6b"
 
 [[extensions]]
 name = "Storefront upsell"

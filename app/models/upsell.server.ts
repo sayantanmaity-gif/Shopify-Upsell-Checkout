@@ -27,7 +27,6 @@ const DEFAULT_SETTINGS = {
   giftThreshold: 0,
   productSource: "manual",
   audience: "all",
-  localizedCopyJson: "{}",
   plan: "free",
 };
 
@@ -53,7 +52,6 @@ export type SettingsInput = {
   lowStockThreshold: number;
   holdoutPercent: number;
   audience: string;
-  localizedCopyJson: string;
 };
 
 export async function saveShopSettings(shop: string, input: SettingsInput) {
