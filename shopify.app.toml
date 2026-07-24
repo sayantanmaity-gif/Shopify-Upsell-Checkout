@@ -2,7 +2,7 @@
 
 client_id = "06f771a5efdd2c09f95ca0253759b70c"
 name = "checkout-upsell"
-application_url = "https://example.com"
+application_url = "https://shopify-upsell-checkout.onrender.com"
 embedded = true
 
 [access_scopes]
@@ -38,8 +38,11 @@ api_version = "2026-07"
   topics = [ "refunds/create" ]
 
 [auth]
-redirect_urls = [ "https://example.com/api/auth" ]
+redirect_urls = [
+  "https://shopify-upsell-checkout.onrender.com/auth/callback",
+  "https://shopify-upsell-checkout.onrender.com/auth/shopify/callback",
+  "https://shopify-upsell-checkout.onrender.com/api/auth/callback",
+]
 
 [build]
-include_config_on_deploy = true
 automatically_update_urls_on_dev = true
